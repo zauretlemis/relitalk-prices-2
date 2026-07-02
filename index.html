@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReLiTalk — Тарифы</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --purple: #7c5cfc;
+    --purple-light: #ece8ff;
+    --cream: #faf9f6;
+    --dark: #0f0e1a;
+    --green: #2cb67d;
+    --green-light: #eafaf3;
+    --gray: #6b6b8a;
+    --border: #e8e4f0;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .logo { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--purple); text-transform: uppercase; margin-bottom: 28px; }
+  .headline { text-align: center; margin-bottom: 32px; }
+  .headline h1 { font-size: clamp(24px, 4vw, 38px); font-weight: 900; line-height: 1.15; letter-spacing: -1px; }
+  .headline h1 span { color: var(--purple); }
+  .headline .sub { font-size: 14px; color: var(--gray); margin-top: 8px; }
+
+  .promo-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 36px; gap: 8px; }
+  .promo-row { display: flex; gap: 8px; align-items: center; }
+  .promo-input {
+    border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 16px;
+    font-size: 14px; font-family: 'Inter', sans-serif; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; color: var(--dark);
+    background: #fff; outline: none; width: 180px; transition: border-color 0.2s;
+  }
+  .promo-input:focus { border-color: var(--purple); }
+  .promo-input.valid { border-color: var(--green); }
+  .promo-input.invalid { border-color: #e05c5c; }
+  .promo-btn {
+    background: var(--purple); color: #fff; border: none; border-radius: 12px;
+    padding: 10px 20px; font-size: 14px; font-family: 'Inter', sans-serif;
+    font-weight: 600; cursor: pointer; transition: background 0.2s;
+  }
+  .promo-btn:hover { background: #5a3dd8; }
+  .promo-msg { font-size: 12px; font-weight: 500; height: 16px; }
+  .promo-msg.success { color: var(--green); }
+  .promo-msg.error { color: #e05c5c; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 880px; width: 100%; }
+  .card {
+    background: #fff; border: 1.5px solid var(--border); border-radius: 20px;
+    padding: 26px 22px 28px; display: flex; flex-direction: column;
+    align-items: center; text-align: center; position: relative;
+  }
+  .card.featured { border-color: var(--purple); border-width: 2px; background: #faf8ff; }
+  .best-badge {
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    background: var(--purple); color: #fff; font-size: 10px; font-weight: 700;
+    letter-spacing: 1.2px; text-transform: uppercase; padding: 5px 18px;
+    border-radius: 20px; white-space: nowrap;
+  }
+  .corner-badge {
+    position: absolute; top: -1px; right: -1px;
+    background: #7c5cfc; color: #fff; font-size: 11px; font-weight: 600;
+    padding: 5px 10px; border-radius: 0 20px 0 12px;
+    opacity: 0; transition: opacity 0.5s ease;
+  }
+  .corner-badge.visible { opacity: 1; }
+  .card-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--purple); background: var(--purple-light); padding: 5px 14px;
+    border-radius: 20px; margin-bottom: 14px; margin-top: 6px;
+  }
+  .card-title { font-size: 26px; font-weight: 800; color: var(--dark); margin-bottom: 18px; letter-spacing: -0.5px; }
+
+  .price-total { font-size: 26px; font-weight: 800; color: var(--dark); margin-bottom: 4px; letter-spacing: -0.5px; transition: all 0.5s ease; }
+  .price-month { font-size: 13px; color: var(--gray); margin-bottom: 4px; }
+  .price-month strong { font-size: 26px; font-weight: 800; color: #2cb67d; letter-spacing: -0.5px; display: block; margin-bottom: 2px; transition: all 0.5s ease; }
+  .installment-cond { font-size: 11px; color: #bbb; margin-bottom: 14px; letter-spacing: 0.5px; }
+  .divider { width: 40px; height: 1px; background: var(--border); margin: 0 auto 14px; }
+  .price-old-wrap { height: 20px; margin-bottom: 8px; }
+  .price-old { font-size: 13px; color: #bbb; text-decoration: line-through; opacity: 0; transition: opacity 0.5s ease; }
+  .price-old.visible { opacity: 1; }
+  .savings-wrap { height: 28px; }
+  .savings-badge {
+    display: inline-block; font-size: 12px; font-weight: 600;
+    color: var(--green); background: var(--green-light); padding: 4px 12px;
+    border-radius: 20px; opacity: 0; transform: translateY(4px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .savings-badge.visible { opacity: 1; transform: translateY(0); }
+
+  .footer-note { margin-top: 28px; font-size: 12px; color: var(--gray); text-align: center; }
+  .footer-note strong { color: var(--purple); }
+  .promo-footer { margin-top: 10px; font-size: 15px; font-weight: 700; color: var(--purple); opacity: 0; transition: opacity 0.5s; text-align: center; }
+  .promo-footer.visible { opacity: 1; }
+
+  @media (max-width: 700px) { .cards { grid-template-columns: 1fr; max-width: 340px; } }
+</style>
+</head>
+<body>
+
+<div class="logo">ReLiTalk</div>
+
+<div class="headline">
+  <h1>Выберите свой тариф<br><span>и начните говорить</span></h1>
+  <p class="sub">Введите промокод чтобы увидеть специальные условия</p>
+</div>
+
+<div class="promo-wrap">
+  <div class="promo-row">
+    <input class="promo-input" id="promoInput" type="password" placeholder="••••••••" maxlength="10">
+    <button class="promo-btn" onclick="applyPromo()">Применить</button>
+  </div>
+  <div class="promo-msg" id="promoMsg"></div>
+</div>
+
+<div class="cards">
+
+  <!-- 6 месяцев -->
+  <div class="card">
+    <div class="corner-badge" id="b1">-20%</div>
+    <div class="card-tag">Разговорный уровень</div>
+    <div class="card-title">6 месяцев</div>
+    <div class="price-total" id="t1">388 000 ₸</div>
+    <div class="price-month"><strong id="m1">64 667 ₸</strong>в месяц при рассрочке</div>
+    <div class="installment-cond">0 — 0 — 6</div>
+    <div class="divider"></div>
+    <div class="price-old-wrap"><div class="price-old" id="o1">388 000 ₸</div></div>
+    <div class="savings-wrap"><div class="savings-badge" id="s1">Экономия 77 600 ₸</div></div>
+  </div>
+
+  <!-- 12 месяцев -->
+  <div class="card featured">
+    <div class="best-badge">Лучший выбор</div>
+    <div class="corner-badge" id="b2">-30%</div>
+    <div class="card-tag">Свободный английский</div>
+    <div class="card-title">12 месяцев</div>
+    <div class="price-total" id="t2">490 000 ₸</div>
+    <div class="price-month"><strong id="m2">40 833 ₸</strong>в месяц при рассрочке</div>
+    <div class="installment-cond">0 — 0 — 12</div>
+    <div class="divider"></div>
+    <div class="price-old-wrap"><div class="price-old" id="o2">490 000 ₸</div></div>
+    <div class="savings-wrap"><div class="savings-badge" id="s2">Экономия 148 000 ₸</div></div>
+  </div>
+
+  <!-- 24 месяца -->
+  <div class="card">
+    <div class="corner-badge" id="b3">-40%</div>
+    <div class="card-tag">Свободный английский</div>
+    <div class="card-title">24 месяца</div>
+    <div class="price-total" id="t3">832 000 ₸</div>
+    <div class="price-month"><strong id="m3">34 667 ₸</strong>в месяц при рассрочке</div>
+    <div class="installment-cond">0 — 0 — 24</div>
+    <div class="divider"></div>
+    <div class="price-old-wrap"><div class="price-old" id="o3">832 000 ₸</div></div>
+    <div class="savings-wrap"><div class="savings-badge" id="s3">Экономия 332 800 ₸</div></div>
+  </div>
+
+</div>
+
+<div class="footer-note">Рассрочка без %</div>
+<div class="promo-footer" id="promoFooter">Скидка действует только на пробном уроке</div>
+
+<script>
+  const CODES = ['BEKZAT','DINARA','ERKEJАН','IGOR','MAKSIM','MANSUR','MARAT','SYMBAT','RELITALK'];
+
+  const DISCOUNT = {
+    m: ['51 733 ₸', '28 500 ₸', '20 800 ₸'],
+    t: ['310 400 ₸', '342 000 ₸', '499 200 ₸'],
+    s: ['Экономия 77 600 ₸', 'Экономия 148 000 ₸', 'Экономия 332 800 ₸'],
+  };
+
+  let promoApplied = false;
+
+  function animateValue(el, newVal, delay) {
+    setTimeout(() => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-4px)';
+      setTimeout(() => {
+        el.textContent = newVal;
+        el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      }, 300);
+    }, delay);
+  }
+
+  function applyPromo() {
+    const val = document.getElementById('promoInput').value.trim().toUpperCase();
+    const input = document.getElementById('promoInput');
+    const msg = document.getElementById('promoMsg');
+
+    if (promoApplied) {
+      msg.textContent = 'Промокод уже применён';
+      msg.className = 'promo-msg success';
+      return;
+    }
+
+    if (!CODES.includes(val)) {
+      input.classList.remove('valid');
+      input.classList.add('invalid');
+      msg.textContent = 'Неверный промокод';
+      msg.className = 'promo-msg error';
+      return;
+    }
+
+    promoApplied = true;
+    input.classList.remove('invalid');
+    input.classList.add('valid');
+    msg.textContent = '✓ Промокод применён — специальные цены активированы';
+    msg.className = 'promo-msg success';
+
+    for (let i = 0; i < 3; i++) {
+      const delay = i * 150;
+      animateValue(document.getElementById(`m${i+1}`), DISCOUNT.m[i], delay);
+      animateValue(document.getElementById(`t${i+1}`), DISCOUNT.t[i], delay + 100);
+      setTimeout(() => {
+        document.getElementById(`o${i+1}`).classList.add('visible');
+        document.getElementById(`s${i+1}`).classList.add('visible');
+        document.getElementById(`b${i+1}`).classList.add('visible');
+      }, delay + 300);
+    }
+
+    document.getElementById('promoFooter').classList.add('visible');
+  }
+
+  document.getElementById('promoInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') applyPromo();
+  });
+</script>
+</body>
+</html>
